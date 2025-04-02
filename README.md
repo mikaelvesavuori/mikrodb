@@ -21,7 +21,7 @@
 - Supports expiration dates
 - Can be exposed directly as an API
 - Suitable for serverless and ephemeral use-cases
-- Less than 15kb gzipped, using only three lightweight dependencies: [MikroConf](https://github.com/mikaelvesavuori/mikroconf), [MikroEvent](https://github.com/mikaelvesavuori/mikroevent), [MikroServe](https://github.com/mikaelvesavuori/mikroserve) (used only for server mode)
+- ~13kb gzipped, using only three lightweight dependencies: [MikroConf](https://github.com/mikaelvesavuori/mikroconf), [MikroEvent](https://github.com/mikaelvesavuori/mikroevent), [MikroServe](https://github.com/mikaelvesavuori/mikroserve) (used only for server mode)
 - High test coverage
 
 ## Installation
