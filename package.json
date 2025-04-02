@@ -1,0 +1,72 @@
+{
+  "name": "mikrodb",
+  "description": "A lightweight KV database inspired by Cloudflare KV, DynamoDB, and sqlite.",
+  "version": "0.0.10",
+  "author": "Mikael Vesavuori",
+  "license": "MIT",
+  "keywords": [],
+  "main": "lib/index.js",
+  "module": "lib/index.mjs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mikaelvesavuori/mikrodb"
+  },
+  "bugs": {
+    "url": "https://github.com/mikaelvesavuori/mikrodb/issues"
+  },
+  "homepage": "https://github.com/mikaelvesavuori/mikrodb",
+  "exports": {
+    ".": {
+      "require": "./lib/index.js",
+      "import": "./lib/index.mjs"
+    }
+  },
+  "files": [
+    "/lib",
+    "!/lib/**/*.map",
+    "!/tests"
+  ],
+  "bin": {
+    "mikrodb": "lib/index.js"
+  },
+  "scripts": {
+    "start": "npx tsx src/index.ts --force",
+    "test": "npm run test:licenses && npm run test:types && npm run lint && npm run test:unit && npm run test:integrity",
+    "benchmark": "npm run clean && npx tsx tests/benchmarks/mikrodb.ts",
+    "generate": "npm run clean && npx tsx tests/utils/generate.ts",
+    "test:integration": "npx tsx tests/system/integration.simulated.ts",
+    "test:integration:real": "npx tsx tests/system/integration.real.ts",
+    "test:integrity": "npm run benchmark && npx tsx tests/system/integrity.ts",
+    "test:stress": "npx tsx tests/system/stress.ts",
+    "test:types": "npx type-coverage --at-least 85 --strict --ignore-files \"tests/**/*.ts\" --ignore-files \"*.ts\" --ignore-files \"src/application/errors/*.ts\" --ignore-files \"testdata/*.ts\"",
+    "test:licenses": "npx license-compliance --direct --allow 'MIT;ISC;0BSD;BSD-2-Clause;BSD-3-Clause;Apache-2.0;Unlicense;CC0-1.0'",
+    "test:unit": "npx vitest run --coverage",
+    "test:watch": "npx vitest --watch",
+    "build": "npm run clean && tsup src --format esm,cjs --dts && mv dist lib",
+    "build:esm": "node esbuild.config.mjs --esm",
+    "build:cjs": "node esbuild.config.mjs --cjs",
+    "clean": "rm -rf test-* && rm -rf mikrodb-demo && rm -rf lib",
+    "lint": "npx @biomejs/biome check --write ./src ./tests",
+    "package": "npm pack",
+    "prepublishOnly": "npm run build",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1",
+    "@types/node": "latest",
+    "@vitest/coverage-v8": "2",
+    "esbuild": "0",
+    "husky": "9",
+    "license-compliance": "latest",
+    "tsup": "8",
+    "tsx": "latest",
+    "type-coverage": "2",
+    "typescript": "5",
+    "vitest": "2"
+  },
+  "dependencies": {
+    "mikroconf": "latest",
+    "mikroevent": "latest",
+    "mikroserve": "latest"
+  }
+}
