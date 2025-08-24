@@ -37,13 +37,6 @@ export class WriteAheadLog {
   );
 
   /**
-   * The maximum size of the WAL buffer before flushing.
-   */
-  private readonly maxWalBufferSize = Number.parseInt(
-    process.env.MAX_WAL_BUFFER_SIZE || (1024 * 1024 * 0.1).toString() // 100 KB
-  );
-
-  /**
    * The maximum size of the WAL buffer before checkpointing.
    */
   private readonly maxWalSizeBeforeCheckpoint = Number.parseInt(
@@ -249,8 +242,9 @@ export class WriteAheadLog {
 
     if (this.walBuffer.length === 0) return;
 
+    const copiedBuffer = JSON.parse(JSON.stringify([...this.walBuffer]));
+
     const bufferToFlush = [...this.walBuffer];
-    this.walBuffer = [];
 
     try {
       await appendFile(this.walFile, bufferToFlush.join(''), 'utf8');
@@ -276,9 +270,11 @@ export class WriteAheadLog {
       }
     } catch (error: any) {
       console.error(`Failed to flush WAL: ${error.message}`);
-      this.walBuffer = [...bufferToFlush, ...this.walBuffer];
+      this.walBuffer = copiedBuffer;
       throw error;
     }
+
+    this.walBuffer = [];
   }
 
   /**
@@ -293,20 +289,13 @@ export class WriteAheadLog {
     expiration = 0
   ) {
     this.checkWalFileExists();
-
     const timestamp = time();
     const logEntry = `${timestamp} ${operation} ${tableName} v:${version} x:${expiration} ${key} ${JSON.stringify(value)}\n`;
+
     this.walBuffer.push(logEntry);
 
     if (this.walBuffer.length >= this.maxWalBufferEntries)
       await this.flushWAL();
-
-    const estimatedBufferSize = this.walBuffer.reduce(
-      (size, entry) => size + entry.length,
-      0
-    );
-
-    if (estimatedBufferSize >= this.maxWalBufferSize) await this.flushWAL();
   }
 
   /**

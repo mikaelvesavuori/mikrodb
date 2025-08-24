@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { readFile, unlink, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 
 import type { CheckpointOptions } from './interfaces/index.js';
 
@@ -108,55 +108,34 @@ export class Checkpoint {
    * and then truncates the WAL file.
    */
   public async checkpoint(force = false): Promise<void> {
-    // Prevent concurrent checkpoints with better protection
-    if (this.isCheckpointing) {
-      if (process.env.DEBUG === 'true')
-        console.log('Checkpoint already in progress, skipping');
-      return;
-    }
+    if (this.isCheckpointing) return;
 
     const now = time();
     if (!force && now - this.lastCheckpointTime < this.checkpointInterval)
       return;
 
     this.isCheckpointing = true;
-    const checkpointFile = `${this.walFile}.checkpoint`;
 
     try {
-      // Double-check no other process is checkpointing
-      if (existsSync(checkpointFile)) {
-        if (process.env.DEBUG === 'true')
-          console.log(
-            'Checkpoint file exists, another process is checkpointing'
-          );
-        return;
-      }
+      // 1. Stop new WAL operations during checkpoint
+      //const _walBuffer = [...this.wal.walBuffer];
 
+      // 2. Flush existing WAL buffer to disk
       await this.wal.flushWAL();
-      await writeFile(checkpointFile, now.toString(), 'utf8');
 
+      // 3. Read ALL WAL entries (including what was just flushed)
       const tablesInWAL = await this.getTablesFromWAL();
+
+      // 4. Apply all WAL operations to memory and persist to disk
       await this.persistTables(tablesInWAL);
 
-      // Truncate WAL
+      // 5. ONLY NOW truncate WAL file
       await writeFile(this.walFile, '', 'utf8');
-      if (process.env.DEBUG === 'true')
-        console.log('WAL truncated successfully');
 
-      // Safe cleanup of checkpoint file
-      try {
-        await unlink(checkpointFile);
-      } catch (error: any) {
-        if (error.code !== 'ENOENT') {
-          throw new CheckpointError(
-            `Failed to delete checkpoint file: ${error}`
-          );
-        }
-      }
-
+      // 6. Clear positions only after successful truncation
       this.wal.clearPositions();
+
       this.lastCheckpointTime = now;
-      if (process.env.DEBUG === 'true') console.log('Checkpoint complete');
     } catch (error: any) {
       throw new CheckpointError(`Checkpoint failed: ${error}`);
     } finally {
