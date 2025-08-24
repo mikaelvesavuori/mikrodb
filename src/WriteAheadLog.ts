@@ -155,13 +155,21 @@ export class WriteAheadLog {
 
         if (table && index < lastPosition) continue;
 
-        const [_timestamp, operation, tableName, version, expiration, key, ...json] =
-          logEntries[index].split(' ');
+        const [
+          _timestamp,
+          operation,
+          tableName,
+          version,
+          expiration,
+          key,
+          ...json
+        ] = logEntries[index].split(' ');
 
         if (table && tableName !== table) continue;
 
         const parsedVersion = Number(version.split(':')[1]);
-        const parsedExpiration = expiration === '0' ? null : Number(expiration.split(':')[1]);
+        const parsedExpiration =
+          expiration === '0' ? null : Number(expiration.split(':')[1]);
 
         if (parsedExpiration && parsedExpiration < now) continue;
 
@@ -193,7 +201,10 @@ export class WriteAheadLog {
 
       return operations;
     } catch (error: any) {
-      if (table) console.error(`Failed to replay WAL for table "${table}": ${error.message}`);
+      if (table)
+        console.error(
+          `Failed to replay WAL for table "${table}": ${error.message}`
+        );
       else console.error(`Failed to replay WAL: ${error.message}`);
 
       return operations;
@@ -255,7 +266,7 @@ export class WriteAheadLog {
         if (this.checkpointCallback) {
           setImmediate(async () => {
             try {
-              // @ts-ignore
+              // @ts-expect-error
               await this.checkpointCallback();
             } catch (error) {
               console.error('Error during automatic checkpoint:', error);
@@ -287,9 +298,13 @@ export class WriteAheadLog {
     const logEntry = `${timestamp} ${operation} ${tableName} v:${version} x:${expiration} ${key} ${JSON.stringify(value)}\n`;
     this.walBuffer.push(logEntry);
 
-    if (this.walBuffer.length >= this.maxWalBufferEntries) await this.flushWAL();
+    if (this.walBuffer.length >= this.maxWalBufferEntries)
+      await this.flushWAL();
 
-    const estimatedBufferSize = this.walBuffer.reduce((size, entry) => size + entry.length, 0);
+    const estimatedBufferSize = this.walBuffer.reduce(
+      (size, entry) => size + entry.length,
+      0
+    );
     if (estimatedBufferSize >= this.maxWalBufferSize) await this.flushWAL();
 
     const stats = statSync(this.walFile);
@@ -302,7 +317,7 @@ export class WriteAheadLog {
       if (this.checkpointCallback) {
         setImmediate(async () => {
           try {
-            // @ts-ignore
+            // @ts-expect-error
             await this.checkpointCallback();
           } catch (error) {
             console.error('Error during automatic checkpoint:', error);

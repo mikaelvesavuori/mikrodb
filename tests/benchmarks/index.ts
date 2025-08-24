@@ -8,7 +8,12 @@ const testData = new TestData();
 /**
  * @description Runs a stress test, like a "benchmark".
  */
-export async function benchmark(db: any, tableNames: string[], count = 10, shuffle = false) {
+export async function benchmark(
+  db: any,
+  tableNames: string[],
+  count = 10,
+  shuffle = false
+) {
   console.log('Memory use before tests', memoryUsage());
 
   performance.mark('start');
@@ -32,7 +37,8 @@ export async function benchmark(db: any, tableNames: string[], count = 10, shuff
   performance.mark('end');
   performance.measure('Total Generation Time', 'start', 'end');
 
-  const totalDuration = performance.getEntriesByName('Total Generation Time')[0]?.duration;
+  const totalDuration = performance.getEntriesByName('Total Generation Time')[0]
+    ?.duration;
   console.log(`Total Generation Time: ${totalDuration}ms`);
 
   performance.clearMarks();

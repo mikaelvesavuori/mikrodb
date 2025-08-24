@@ -79,7 +79,9 @@ export class Persistence {
     chunks.push(header);
 
     // Filter out invalid keys and get valid entries count
-    const validEntries = Array.from(tableData.entries()).filter(([key]) => typeof key === 'string');
+    const validEntries = Array.from(tableData.entries()).filter(
+      ([key]) => typeof key === 'string'
+    );
 
     // Write record count (4 bytes, little endian)
     const countBuffer = Buffer.alloc(4);
@@ -139,10 +141,15 @@ export class Persistence {
   private encodeValue(value: any): Buffer {
     if (value === null || value === undefined) return Buffer.from([0x00]); // Null type
 
-    if (typeof value === 'boolean') return Buffer.from([0x01, value ? 0x01 : 0x00]);
+    if (typeof value === 'boolean')
+      return Buffer.from([0x01, value ? 0x01 : 0x00]);
 
     if (typeof value === 'number') {
-      if (Number.isInteger(value) && value >= -2147483648 && value <= 2147483647) {
+      if (
+        Number.isInteger(value) &&
+        value >= -2147483648 &&
+        value <= 2147483647
+      ) {
         // 32-bit integer
         const buf = Buffer.alloc(5);
         buf[0] = 0x02; // Int32 type
@@ -319,7 +326,11 @@ export class Persistence {
       case 0x04: {
         // String
         const length = buffer.readUInt32LE(startOffset + 1);
-        const value = buffer.toString('utf8', startOffset + 5, startOffset + 5 + length);
+        const value = buffer.toString(
+          'utf8',
+          startOffset + 5,
+          startOffset + 5 + length
+        );
         return { value, bytesRead: 5 + length };
       }
 

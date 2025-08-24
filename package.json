@@ -1,7 +1,7 @@
 {
   "name": "mikrodb",
   "description": "A lightweight KV database inspired by Cloudflare KV, DynamoDB, and sqlite.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Mikael Vesavuori",
   "license": "MIT",
   "keywords": [],
@@ -52,9 +52,9 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@biomejs/biome": "1",
+    "@biomejs/biome": "2",
     "@types/node": "latest",
-    "@vitest/coverage-v8": "2",
+    "@vitest/coverage-v8": "3",
     "esbuild": "0",
     "husky": "9",
     "license-compliance": "latest",
@@ -62,7 +62,7 @@
     "tsx": "latest",
     "type-coverage": "2",
     "typescript": "5",
-    "vitest": "2"
+    "vitest": "3"
   },
   "dependencies": {
     "mikroconf": "latest",

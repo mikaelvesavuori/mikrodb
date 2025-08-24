@@ -39,7 +39,12 @@ describe('Initialization', () => {
         targets: [
           {
             name: 'internal',
-            events: ['item.deleted', 'item.expired', 'item.written', 'table.deleted']
+            events: [
+              'item.deleted',
+              'item.expired',
+              'item.written',
+              'table.deleted'
+            ]
           }
         ],
         listeners: [
@@ -226,7 +231,10 @@ describe('Writing data', () => {
     });
 
     test('It should flush after maxWriteOpsBeforeFlush operations', async () => {
-      const db: any = new MikroDB({ databaseDirectory: testDir, maxWriteOpsBeforeFlush: 1 } as any);
+      const db: any = new MikroDB({
+        databaseDirectory: testDir,
+        maxWriteOpsBeforeFlush: 1
+      } as any);
       await db.start();
 
       const flushWritesSpy = vi.spyOn(db.table, 'flushWrites');
@@ -333,8 +341,9 @@ describe('Writing data', () => {
         await new Promise((resolve) => setTimeout(resolve, 200));
 
         if (existsSync(batchTestDir)) {
-          await rm(batchTestDir, { recursive: true, force: true }).catch((err) =>
-            console.error(`Failed to clean up batch test dir: ${err.message}`)
+          await rm(batchTestDir, { recursive: true, force: true }).catch(
+            (err) =>
+              console.error(`Failed to clean up batch test dir: ${err.message}`)
           );
         }
       }
@@ -389,11 +398,15 @@ describe('Writing data', () => {
         // Remove outliers - ignore the slowest 5% of reads
         const sortedTimes = [...readTimes].sort((a, b) => a - b);
         const trimmedTimes = sortedTimes.slice(0, Math.floor(readCount * 0.95));
-        const trimmedAvg = trimmedTimes.reduce((sum, time) => sum + time, 0) / trimmedTimes.length;
+        const trimmedAvg =
+          trimmedTimes.reduce((sum, time) => sum + time, 0) /
+          trimmedTimes.length;
 
         console.log(`${readCount} random reads with large WAL:`);
         console.log(`- Average read time: ${avgReadTime.toFixed(2)}ms`);
-        console.log(`- Average read time (95th percentile): ${trimmedAvg.toFixed(2)}ms`);
+        console.log(
+          `- Average read time (95th percentile): ${trimmedAvg.toFixed(2)}ms`
+        );
 
         expect(trimmedAvg).toBeLessThan(100);
 
@@ -421,7 +434,9 @@ describe('Writing data', () => {
       });
 
       const record = _db.table.getItem('users', 'user1');
-      _db.table.writeBuffer = [JSON.stringify({ tableName: 'users', key: 'user1', record })];
+      _db.table.writeBuffer = [
+        JSON.stringify({ tableName: 'users', key: 'user1', record })
+      ];
 
       await _db.table.flushWrites();
 
@@ -532,7 +547,7 @@ describe('Checkpoint', () => {
 
         const newDb = new MikroDB({ databaseDirectory: uniqueTestDir } as any);
 
-        // @ts-ignore
+        // @ts-expect-error
         const checkpointSpy = vi.spyOn(newDb.checkpoint, 'checkpoint');
 
         await newDb.start();
@@ -544,7 +559,8 @@ describe('Checkpoint', () => {
         await newDb.close();
       } finally {
         await new Promise((resolve) => setTimeout(resolve, 100));
-        if (existsSync(uniqueTestDir)) await rm(uniqueTestDir, { recursive: true, force: true });
+        if (existsSync(uniqueTestDir))
+          await rm(uniqueTestDir, { recursive: true, force: true });
       }
     });
   });
@@ -616,7 +632,9 @@ describe('WAL handling', () => {
       const newDb = new MikroDB({ databaseDirectory: testDir } as any);
       await newDb.start();
 
-      expect(await newDb.get({ tableName: 'users', key: 'expiredUser' })).toBeUndefined();
+      expect(
+        await newDb.get({ tableName: 'users', key: 'expiredUser' })
+      ).toBeUndefined();
     });
 
     test('It should handle WAL with delete operations', async () => {
@@ -632,7 +650,9 @@ describe('WAL handling', () => {
       const newDb = new MikroDB({ databaseDirectory: testDir } as any);
       await newDb.start();
 
-      expect(await newDb.get({ tableName: 'users', key: 'user1' })).toBeUndefined();
+      expect(
+        await newDb.get({ tableName: 'users', key: 'user1' })
+      ).toBeUndefined();
     });
 
     test('It should only load WAL entries for the requested table', async () => {
@@ -743,7 +763,7 @@ describe('WAL handling', () => {
     });
 
     test('It should flush WAL when buffer entries exceed limit', async () => {
-      // @ts-ignore - accessing private property
+      // @ts-expect-error - accessing private property
       db.checkpoint.wal.maxWalBufferEntries = 5;
       console.log('DB', db);
 
@@ -765,7 +785,9 @@ describe('WAL handling', () => {
     });
 
     test('It should flush WAL when buffer size exceeds limit', async () => {
-      const db = new MikroDB({ databaseDirectory: `${testDir}-buffer-excess` } as any);
+      const db = new MikroDB({
+        databaseDirectory: `${testDir}-buffer-excess`
+      } as any);
       const flushSpy = vi.spyOn((db as any).table.wal, 'flushWAL');
 
       const largeValue = { data: 'x'.repeat(20000) }; // Large data to exceed buffer size
@@ -845,8 +867,9 @@ describe('WAL handling', () => {
           await new Promise((resolve) => setTimeout(resolve, 500));
 
           if (existsSync(uniqueTestDir)) {
-            await rm(uniqueTestDir, { recursive: true, force: true }).catch((err) =>
-              console.error(`Failed to clean up test dir: ${err.message}`)
+            await rm(uniqueTestDir, { recursive: true, force: true }).catch(
+              (err) =>
+                console.error(`Failed to clean up test dir: ${err.message}`)
             );
           }
         }

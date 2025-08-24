@@ -429,7 +429,10 @@ describe('Complex queries', () => {
       tableName: 'users',
       options: {
         filter: {
-          $or: [{ role: 'admin' }, { tags: { operator: 'contains', value: 'premium' } }],
+          $or: [
+            { role: 'admin' },
+            { tags: { operator: 'contains', value: 'premium' } }
+          ],
           status: 'active',
           age: { operator: 'gte', value: 25 }
         },

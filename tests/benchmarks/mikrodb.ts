@@ -6,7 +6,9 @@ import { config } from '../config.js';
 async function benchmarkMikroDB() {
   const opsDivision = 1;
 
-  process.env.MAX_WRITE_OPS_BEFORE_FLUSH = (config.count / opsDivision).toString();
+  process.env.MAX_WRITE_OPS_BEFORE_FLUSH = (
+    config.count / opsDivision
+  ).toString();
 
   const dbPath = config.databaseName;
   const db = new MikroDB({ databaseDirectory: dbPath });

@@ -1,4 +1,9 @@
-import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from 'node:crypto';
+import {
+  createCipheriv,
+  createDecipheriv,
+  randomBytes,
+  scryptSync
+} from 'node:crypto';
 
 import type { EncryptedData } from './interfaces/index.js';
 
@@ -39,11 +44,16 @@ export class Encryption {
     }
 
     if (iv.length !== this.IV_LENGTH) {
-      throw new Error(`Invalid IV length: ${iv.length} bytes. Expected: ${this.IV_LENGTH} bytes`);
+      throw new Error(
+        `Invalid IV length: ${iv.length} bytes. Expected: ${this.IV_LENGTH} bytes`
+      );
     }
 
     const cipher = createCipheriv(this.algo, key, iv);
-    const encrypted = Buffer.concat([cipher.update(plainText, 'utf8'), cipher.final()]);
+    const encrypted = Buffer.concat([
+      cipher.update(plainText, 'utf8'),
+      cipher.final()
+    ]);
     const authTag = cipher.getAuthTag();
 
     return { iv, encrypted, authTag };
@@ -65,13 +75,18 @@ export class Encryption {
     }
 
     if (iv.length !== this.IV_LENGTH) {
-      throw new Error(`Invalid IV length: ${iv.length} bytes. Expected: ${this.IV_LENGTH} bytes`);
+      throw new Error(
+        `Invalid IV length: ${iv.length} bytes. Expected: ${this.IV_LENGTH} bytes`
+      );
     }
 
     const decipher = createDecipheriv(this.algo, key, iv);
     decipher.setAuthTag(authTag);
 
-    return Buffer.concat([decipher.update(encrypted), decipher.final()]).toString('utf8');
+    return Buffer.concat([
+      decipher.update(encrypted),
+      decipher.final()
+    ]).toString('utf8');
   }
 
   /**

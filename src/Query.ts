@@ -17,7 +17,9 @@ export class Query {
     for (const [k, v] of table.entries()) {
       if (
         !filter ||
-        (typeof filter === 'function' ? filter(v.value) : this.evaluateFilter(v.value, filter))
+        (typeof filter === 'function'
+          ? filter(v.value)
+          : this.evaluateFilter(v.value, filter))
       ) {
         records.set(k, v.value);
 
@@ -31,7 +33,10 @@ export class Query {
   /**
    * @description Evaluates a single filter condition against a value.
    */
-  private evaluateCondition(value: any, condition: FilterCondition | any): boolean {
+  private evaluateCondition(
+    value: any,
+    condition: FilterCondition | any
+  ): boolean {
     if (!condition || typeof condition !== 'object' || !condition.operator)
       return value === condition;
 
@@ -127,7 +132,11 @@ export class Query {
         if (!this.evaluateCondition(value, condition)) return false;
       }
       // Handle nested filter queries
-      else if (condition && typeof condition === 'object' && !('operator' in condition)) {
+      else if (
+        condition &&
+        typeof condition === 'object' &&
+        !('operator' in condition)
+      ) {
         const nestedValue = record[field];
         if (nestedValue === undefined || nestedValue === null) return false;
 

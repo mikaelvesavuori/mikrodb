@@ -47,7 +47,8 @@ export class MikroDB {
   constructor(options?: MikroDBOptions) {
     const defaults = configDefaults();
 
-    const databaseDirectory = options?.databaseDirectory || defaults.db.databaseDirectory;
+    const databaseDirectory =
+      options?.databaseDirectory || defaults.db.databaseDirectory;
     const walFileName = options?.walFileName || defaults.db.walFileName;
     const walInterval = options?.walInterval || defaults.db.walInterval;
     const encryptionKey = options?.encryptionKey || defaults.db.encryptionKey;
@@ -57,7 +58,8 @@ export class MikroDB {
 
     if (options?.debug) process.env.DEBUG = 'true';
     if (options?.maxWriteOpsBeforeFlush)
-      process.env.MAX_WRITE_OPS_BEFORE_FLUSH = maxWriteOpsBeforeFlush.toString();
+      process.env.MAX_WRITE_OPS_BEFORE_FLUSH =
+        maxWriteOpsBeforeFlush.toString();
 
     this.table = new Table(
       {
@@ -71,7 +73,9 @@ export class MikroDB {
 
     const wal = this.table.getWAL();
 
-    this.table.getWAL().setCheckpointCallback(() => this.checkpoint.checkpoint(true));
+    this.table
+      .getWAL()
+      .setCheckpointCallback(() => this.checkpoint.checkpoint(true));
 
     this.checkpoint = new Checkpoint({
       table: this.table,
@@ -82,7 +86,9 @@ export class MikroDB {
 
     this.checkpoint
       .start()
-      .catch((error) => console.error('Failed to start checkpoint service:', error));
+      .catch((error) =>
+        console.error('Failed to start checkpoint service:', error)
+      );
   }
 
   /**

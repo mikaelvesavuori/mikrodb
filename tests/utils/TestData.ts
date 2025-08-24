@@ -6,7 +6,8 @@ export class TestData {
    * @description Outputs a random string.
    */
   public randomString(length: number) {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const chars =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
     let result = '';
 
@@ -20,7 +21,8 @@ export class TestData {
    * @description Create a random date in ISO format.
    */
   private randomDate() {
-    const randomTimestamp = Date.now() - Math.floor(Math.random() * 10000000000);
+    const randomTimestamp =
+      Date.now() - Math.floor(Math.random() * 10000000000);
 
     return new Date(randomTimestamp).toISOString();
   }
@@ -44,7 +46,9 @@ export class TestData {
           product: `${this.randomString(8)}-${this.randomString(4)}`,
           quantity: Math.floor(Math.random() * 10) + 1,
           totalPrice: Math.floor(Math.random() * 1000) + 50,
-          status: ['pending', 'completed', 'shipped', 'cancelled'][Math.floor(Math.random() * 4)],
+          status: ['pending', 'completed', 'shipped', 'cancelled'][
+            Math.floor(Math.random() * 4)
+          ],
           orderDate: this.randomDate()
         };
       case 'products':
@@ -60,7 +64,9 @@ export class TestData {
         return {
           firstName: `${this.randomString(5)}`,
           lastName: `${this.randomString(7)}`,
-          position: ['Developer', 'Manager', 'Designer', 'Sales'][Math.floor(Math.random() * 4)],
+          position: ['Developer', 'Manager', 'Designer', 'Sales'][
+            Math.floor(Math.random() * 4)
+          ],
           hireDate: this.randomDate(),
           salary: Math.floor(Math.random() * 80000) + 20000
         };

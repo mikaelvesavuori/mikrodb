@@ -25,7 +25,8 @@ export async function startServer(config: CombinedConfiguration) {
   server.get('/table', async (c: any) => {
     const body = c.req.body;
 
-    if (!body.tableName) return c.json({ statusCode: 400, body: 'tableName is required' });
+    if (!body.tableName)
+      return c.json({ statusCode: 400, body: 'tableName is required' });
 
     const result = await db.getTableSize(body.tableName);
     if (!result) c.json({ statusCode: 404, body: null });
@@ -36,7 +37,8 @@ export async function startServer(config: CombinedConfiguration) {
   server.post('/get', async (c: any) => {
     const body = c.req.body;
 
-    if (!body.tableName) return c.json({ statusCode: 400, body: 'tableName is required' });
+    if (!body.tableName)
+      return c.json({ statusCode: 400, body: 'tableName is required' });
 
     const operation: GetOperation = {
       tableName: body.tableName,
@@ -56,7 +58,10 @@ export async function startServer(config: CombinedConfiguration) {
     const body = c.req.body;
 
     if (!body.tableName || body.value === undefined)
-      return c.json({ statusCode: 400, body: 'tableName and value are required' });
+      return c.json({
+        statusCode: 400,
+        body: 'tableName and value are required'
+      });
 
     const operation: WriteOperation = {
       tableName: body.tableName,
@@ -80,7 +85,10 @@ export async function startServer(config: CombinedConfiguration) {
     const query = c.params;
 
     if (!query.tableName || !query.key)
-      return c.json({ statusCode: 400, body: 'tableName and key are required' });
+      return c.json({
+        statusCode: 400,
+        body: 'tableName and key are required'
+      });
 
     const operation: DeleteOperation = {
       tableName: query.tableName,

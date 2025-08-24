@@ -50,7 +50,8 @@ export class Checkpoint {
 
   constructor(options: CheckpointOptions) {
     const { table, wal, walFile, checkpointIntervalMs } = options;
-    this.defaultCheckpointIntervalMs = checkpointIntervalMs || this.defaultCheckpointIntervalMs;
+    this.defaultCheckpointIntervalMs =
+      checkpointIntervalMs || this.defaultCheckpointIntervalMs;
 
     this.table = table;
     this.wal = wal;
@@ -110,7 +111,8 @@ export class Checkpoint {
     if (this.isCheckpointing) return;
 
     const now = time();
-    if (!force && now - this.lastCheckpointTime < this.checkpointInterval) return;
+    if (!force && now - this.lastCheckpointTime < this.checkpointInterval)
+      return;
 
     this.isCheckpointing = true;
 
@@ -126,7 +128,8 @@ export class Checkpoint {
 
       try {
         await writeFile(this.walFile, '', 'utf8');
-        if (process.env.DEBUG === 'true') console.log('WAL truncated successfully');
+        if (process.env.DEBUG === 'true')
+          console.log('WAL truncated successfully');
       } catch (error) {
         throw new CheckpointError(`Failed to truncate WAL: ${error}`);
       }
@@ -181,7 +184,9 @@ export class Checkpoint {
         await this.table.flushTableToDisk(tableName);
         console.log(`Checkpointed table "${tableName}"`);
       } catch (error: any) {
-        throw new CheckpointError(`Failed to checkpoint table "${tableName}": ${error.message}`);
+        throw new CheckpointError(
+          `Failed to checkpoint table "${tableName}": ${error.message}`
+        );
       }
     });
 

@@ -17,7 +17,10 @@ const safeUnlink = async (filePath: string) => {
 };
 
 const testDir = join(process.cwd(), 'test-wal-dir');
-const walFile = join(testDir, `test-${Date.now()}-${Math.round(Math.random() * 1000)}.wal`);
+const walFile = join(
+  testDir,
+  `test-${Date.now()}-${Math.round(Math.random() * 1000)}.wal`
+);
 const walInterval = 10;
 let wal: WriteAheadLog;
 
@@ -25,7 +28,7 @@ beforeEach(async () => {
   try {
     await mkdir(testDir, { recursive: true });
   } catch (error) {
-    // @ts-ignore
+    // @ts-expect-error
     if (!(error as any).code === 'EEXIST') throw error;
   }
 
@@ -52,9 +55,9 @@ describe('Initialization', () => {
   });
 
   test('It should start with the correct file path and interval', () => {
-    // @ts-ignore
+    // @ts-expect-error
     expect(wal.walFile).toBe(walFile);
-    // @ts-ignore
+    // @ts-expect-error
     expect(wal.walInterval).toBe(walInterval);
   });
 });
@@ -66,9 +69,9 @@ describe('Buffer management and flushing', () => {
   });
 
   test('It should flush buffer to disk when reaching max entries limit', async () => {
-    // @ts-ignore - Set a smaller buffer limit for testing
+    // @ts-expect-error - Set a smaller buffer limit for testing
     const originalMaxEntries = wal.maxWalBufferEntries;
-    // @ts-ignore - Accessing private property for testing
+    // @ts-expect-error - Accessing private property for testing
     wal.maxWalBufferEntries = 3;
 
     try {
@@ -92,15 +95,15 @@ describe('Buffer management and flushing', () => {
       expect(content).toContain('key3');
     } finally {
       // Restore original value
-      // @ts-ignore - Accessing private property for testing
+      // @ts-expect-error - Accessing private property for testing
       wal.maxWalBufferEntries = originalMaxEntries;
     }
   });
 
   test('It should flush buffer to disk when reaching max buffer size', async () => {
-    // @ts-ignore - Set a smaller buffer size limit for testing
+    // @ts-expect-error - Set a smaller buffer size limit for testing
     const originalMaxSize = wal.maxWalBufferSize;
-    // @ts-ignore - Accessing private property for testing
+    // @ts-expect-error - Accessing private property for testing
     wal.maxWalBufferSize = 100;
 
     try {
@@ -115,7 +118,7 @@ describe('Buffer management and flushing', () => {
       const content = readFileSync(walFile, 'utf8');
       expect(content).toContain('largeKey');
     } finally {
-      // @ts-ignore - Accessing private property for testing
+      // @ts-expect-error - Accessing private property for testing
       wal.maxWalBufferSize = originalMaxSize;
     }
   });
@@ -166,7 +169,14 @@ describe('Append operations', () => {
 
   test('It should store entries with expiration time', async () => {
     const futureTime = Date.now() + 60000; // 1 minute in the future
-    await wal.appendToWAL('testTable', 'W', 'key1', { test: 'data' }, 1, futureTime);
+    await wal.appendToWAL(
+      'testTable',
+      'W',
+      'key1',
+      { test: 'data' },
+      1,
+      futureTime
+    );
     await wal.flushWAL();
 
     const content = readFileSync(walFile, 'utf8');
@@ -244,7 +254,9 @@ describe('Checking for new WAL entries', () => {
   test('It should handle non-existent WAL file in checks', async () => {
     await safeUnlink(walFile);
 
-    await expect(wal.hasNewWALEntriesForTable('testTable')).rejects.toThrowError(NotFoundError);
+    await expect(
+      wal.hasNewWALEntriesForTable('testTable')
+    ).rejects.toThrowError(NotFoundError);
   });
 });
 
@@ -257,43 +269,61 @@ describe('Checkpoint callback', () => {
       await Promise.resolve();
     });
 
-    // @ts-ignore - Accessing private property for testing
+    // @ts-expect-error - Accessing private property for testing
     const originalLimit = wal.maxWalSizeBeforeCheckpoint;
-    // @ts-ignore - Accessing private property for testing
+    // @ts-expect-error - Accessing private property for testing
     wal.maxWalSizeBeforeCheckpoint = 10;
 
     try {
-      await wal.appendToWAL('testTable', 'W', 'key1', { test: 'initial data' }, 1);
+      await wal.appendToWAL(
+        'testTable',
+        'W',
+        'key1',
+        { test: 'initial data' },
+        1
+      );
       await wal.flushWAL();
 
-      await wal.appendToWAL('testTable', 'W', 'key2', { test: 'data'.repeat(50) }, 2);
+      await wal.appendToWAL(
+        'testTable',
+        'W',
+        'key2',
+        { test: 'data'.repeat(50) },
+        2
+      );
       await wal.flushWAL();
 
       await delay(300);
 
       expect(checkpointCalled).toBe(true);
     } finally {
-      // @ts-ignore - Accessing private property for testing
+      // @ts-expect-error - Accessing private property for testing
       wal.maxWalSizeBeforeCheckpoint = originalLimit;
     }
   });
 
   test('It should handle missing checkpoint callback', async () => {
-    // @ts-ignore - Set a very small WAL size limit
+    // @ts-expect-error - Set a very small WAL size limit
     const originalLimit = wal.maxWalSizeBeforeCheckpoint;
-    // @ts-ignore - Accessing private property for testing
+    // @ts-expect-error - Accessing private property for testing
     wal.maxWalSizeBeforeCheckpoint = 10;
 
     try {
       // This should not throw an error despite no callback being set
-      await wal.appendToWAL('testTable', 'W', 'key1', { test: 'data'.repeat(20) }, 1);
+      await wal.appendToWAL(
+        'testTable',
+        'W',
+        'key1',
+        { test: 'data'.repeat(20) },
+        1
+      );
       await wal.flushWAL();
 
       // Wait to ensure no errors occur
       await delay(100);
     } finally {
       // Restore original value
-      // @ts-ignore - Accessing private property for testing
+      // @ts-expect-error - Accessing private property for testing
       wal.maxWalSizeBeforeCheckpoint = originalLimit;
     }
   });
@@ -340,7 +370,14 @@ describe('Expiration handling', () => {
     const now = Date.now();
     const pastExpiration = now - 10000; // 10 seconds in the past
 
-    await wal.appendToWAL('testTable', 'W', 'key1', { test: 'expired' }, 1, pastExpiration);
+    await wal.appendToWAL(
+      'testTable',
+      'W',
+      'key1',
+      { test: 'expired' },
+      1,
+      pastExpiration
+    );
     await wal.appendToWAL('testTable', 'W', 'key2', { test: 'valid' }, 2, 0); // No expiration
     await wal.flushWAL();
 
@@ -355,7 +392,14 @@ describe('Expiration handling', () => {
     const now = Date.now();
     const futureExpiration = now + 10000; // 10 seconds in the future
 
-    await wal.appendToWAL('testTable', 'W', 'key1', { test: 'future' }, 1, futureExpiration);
+    await wal.appendToWAL(
+      'testTable',
+      'W',
+      'key1',
+      { test: 'future' },
+      1,
+      futureExpiration
+    );
     await wal.flushWAL();
 
     const operations = await wal.loadWAL();
@@ -400,7 +444,10 @@ describe('Error handling', () => {
       try {
         await rm(errorTestFile, { recursive: true, force: true });
       } catch (cleanupError) {
-        console.warn('Warning: Failed to clean up test directory', cleanupError);
+        console.warn(
+          'Warning: Failed to clean up test directory',
+          cleanupError
+        );
       }
     }
   });
@@ -416,7 +463,13 @@ describe('Automatic flush interval', () => {
     const autoFlushWal = new WriteAheadLog(testWalFile, walInterval);
 
     // Add to buffer but don't manually flush
-    await autoFlushWal.appendToWAL('testTable', 'W', 'key1', { test: 'data' }, 1);
+    await autoFlushWal.appendToWAL(
+      'testTable',
+      'W',
+      'key1',
+      { test: 'data' },
+      1
+    );
     expect(autoFlushWal.walBuffer.length).toBe(1);
 
     // Wait for automatic flush interval (a bit longer to be safe)

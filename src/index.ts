@@ -34,8 +34,16 @@ async function main() {
             path: 'db.databaseDirectory',
             defaultValue: defaults.db.databaseDirectory
           },
-          { flag: '--wal', path: 'db.walFileName', defaultValue: defaults.db.walFileName },
-          { flag: '--interval', path: 'db.walInterval', defaultValue: defaults.db.walInterval },
+          {
+            flag: '--wal',
+            path: 'db.walFileName',
+            defaultValue: defaults.db.walFileName
+          },
+          {
+            flag: '--interval',
+            path: 'db.walInterval',
+            defaultValue: defaults.db.walInterval
+          },
           {
             flag: '--encryptionKey',
             path: 'db.encryptionKey',

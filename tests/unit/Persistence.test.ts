@@ -366,13 +366,19 @@ describe('Date handling', () => {
     expect(result.creation.getTime()).toBe(complexWithDates.creation.getTime());
 
     expect(result.lastModified instanceof Date).toBe(true);
-    expect(result.lastModified.getTime()).toBe(complexWithDates.lastModified.getTime());
+    expect(result.lastModified.getTime()).toBe(
+      complexWithDates.lastModified.getTime()
+    );
 
     expect(result.items[0].timestamp instanceof Date).toBe(true);
-    expect(result.items[0].timestamp.getTime()).toBe(complexWithDates.items[0].timestamp.getTime());
+    expect(result.items[0].timestamp.getTime()).toBe(
+      complexWithDates.items[0].timestamp.getTime()
+    );
 
     expect(result.items[1].timestamp instanceof Date).toBe(true);
-    expect(result.items[1].timestamp.getTime()).toBe(complexWithDates.items[1].timestamp.getTime());
+    expect(result.items[1].timestamp.getTime()).toBe(
+      complexWithDates.items[1].timestamp.getTime()
+    );
 
     expect(result.metadata.expiration instanceof Date).toBe(true);
     expect(result.metadata.expiration.getTime()).toBe(
@@ -453,7 +459,9 @@ describe('Date handling', () => {
       expect(deserialized.created.getTime()).toBe(original.created.getTime());
 
       expect(deserialized.lastAccessed instanceof Date).toBe(true);
-      expect(deserialized.lastAccessed.getTime()).toBe(original.lastAccessed.getTime());
+      expect(deserialized.lastAccessed.getTime()).toBe(
+        original.lastAccessed.getTime()
+      );
 
       expect(deserialized.expires instanceof Date).toBe(true);
       expect(deserialized.expires.getTime()).toBe(original.expires.getTime());
@@ -489,8 +497,12 @@ describe('Performance and memory efficiency', () => {
     const deserializedTable = persistence.readTableFromBinaryBuffer(buffer);
     const deserializationTime = performance.now() - startDeserializeTime;
 
-    console.log(`Serialized ${entryCount} entries in ${serializationTime.toFixed(2)}ms`);
-    console.log(`Deserialized ${entryCount} entries in ${deserializationTime.toFixed(2)}ms`);
+    console.log(
+      `Serialized ${entryCount} entries in ${serializationTime.toFixed(2)}ms`
+    );
+    console.log(
+      `Deserialized ${entryCount} entries in ${deserializationTime.toFixed(2)}ms`
+    );
     console.log(`Buffer size: ${buffer.length} bytes`);
 
     // Ensure data integrity
@@ -499,7 +511,9 @@ describe('Performance and memory efficiency', () => {
     // Check a few random entries
     const randomKeys = Array.from(largeTable.keys()).slice(0, 10);
     for (const key of randomKeys) {
-      expect(deserializedTable.get(key).value).toEqual(largeTable.get(key).value);
+      expect(deserializedTable.get(key).value).toEqual(
+        largeTable.get(key).value
+      );
     }
   });
 });
@@ -548,7 +562,10 @@ describe('Expiration handling', () => {
     // Deserialize with the current time
     const deserializedTable = persistence.readTableFromBinaryBuffer(buffer);
 
-    console.log('Deserialized table entries:', Array.from(deserializedTable.keys()));
+    console.log(
+      'Deserialized table entries:',
+      Array.from(deserializedTable.keys())
+    );
     console.log(
       'Deserialized future expiration entry:',
       deserializedTable.has('expires-future')
@@ -600,7 +617,9 @@ describe('Key and value limits', () => {
     const deserializedTable = persistence.readTableFromBinaryBuffer(buffer);
 
     expect(deserializedTable.get('large-value').value).toBe(largeValue);
-    expect(deserializedTable.get('large-value').value.length).toBe(largeValue.length);
+    expect(deserializedTable.get('large-value').value.length).toBe(
+      largeValue.length
+    );
   });
 });
 
@@ -639,7 +658,8 @@ describe('Corrupted data handling', () => {
       // Try to deserialize - should not throw
       let deserializedTable: any;
       try {
-        deserializedTable = persistence.readTableFromBinaryBuffer(truncatedBuffer);
+        deserializedTable =
+          persistence.readTableFromBinaryBuffer(truncatedBuffer);
         // If we got here, truncation didn't cause an error
       } catch (_error) {
         // If error occurred, just note it and continue
@@ -695,7 +715,10 @@ describe('Versioning and updates', () => {
 
 describe('File format compatibility', () => {
   test('Should detect invalid file format', () => {
-    const invalidBuffer = Buffer.from('This is not a valid MikroDB file', 'utf8');
+    const invalidBuffer = Buffer.from(
+      'This is not a valid MikroDB file',
+      'utf8'
+    );
 
     expect(() => {
       persistence.readTableFromBinaryBuffer(invalidBuffer);
@@ -943,7 +966,9 @@ describe('Realistic database scenarios', () => {
 describe('Error handling and edge cases', () => {
   test('Should reject an invalid buffer format', () => {
     // Create an invalid buffer without the proper header
-    const invalidBuffer = Buffer.from([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
+    const invalidBuffer = Buffer.from([
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    ]);
 
     expect(() => {
       persistence.readTableFromBinaryBuffer(invalidBuffer);
@@ -971,7 +996,8 @@ describe('Error handling and edge cases', () => {
     const truncatedBuffer = buffer.slice(0, buffer.length / 2);
 
     // Should not throw, but might not get all entries
-    const deserializedTable = persistence.readTableFromBinaryBuffer(truncatedBuffer);
+    const deserializedTable =
+      persistence.readTableFromBinaryBuffer(truncatedBuffer);
 
     // We expect to get at least the header parsed
     expect(deserializedTable).toBeDefined();

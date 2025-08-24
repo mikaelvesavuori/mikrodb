@@ -23,11 +23,17 @@ describe('Encryption', () => {
       expect(key.equals(sameKey)).toBe(true);
 
       // Check different passwords produce different keys
-      const differentPasswordKey = encryption.generateKey('different', 'salt123');
+      const differentPasswordKey = encryption.generateKey(
+        'different',
+        'salt123'
+      );
       expect(key.equals(differentPasswordKey)).toBe(false);
 
       // Check different salts produce different keys
-      const differentSaltKey = encryption.generateKey('password123', 'different');
+      const differentSaltKey = encryption.generateKey(
+        'password123',
+        'different'
+      );
       expect(key.equals(differentSaltKey)).toBe(false);
     });
   });
@@ -61,7 +67,10 @@ describe('Encryption', () => {
         { label: 'empty string', data: '' },
         { label: 'short text', data: 'Hello, world!' },
         { label: 'long text', data: 'a'.repeat(1000) },
-        { label: 'JSON data', data: JSON.stringify({ id: 123, name: 'Test', items: [1, 2, 3] }) },
+        {
+          label: 'JSON data',
+          data: JSON.stringify({ id: 123, name: 'Test', items: [1, 2, 3] })
+        },
         { label: 'special chars', data: '!@#$%^&*()_+{}:"<>?[];\',./' }
       ];
     });
@@ -154,14 +163,18 @@ describe('Encryption', () => {
       const invalidKey = Buffer.from('too-short');
       const iv = encryption.generateIV();
 
-      expect(() => encryption.encrypt('test', invalidKey, iv)).toThrow('Invalid key length');
+      expect(() => encryption.encrypt('test', invalidKey, iv)).toThrow(
+        'Invalid key length'
+      );
     });
 
     test('It should throw error for invalid IV length in encrypt', () => {
       const key = encryption.generateKey('test', 'salt');
       const invalidIv = Buffer.from('wrong-size');
 
-      expect(() => encryption.encrypt('test', key, invalidIv)).toThrow('Invalid IV length');
+      expect(() => encryption.encrypt('test', key, invalidIv)).toThrow(
+        'Invalid IV length'
+      );
     });
 
     test('It should throw error for invalid key length in decrypt', () => {
@@ -173,7 +186,9 @@ describe('Encryption', () => {
       // Then try to decrypt with invalid key
       const invalidKey = Buffer.from('too-short-decrypt-key');
 
-      expect(() => encryption.decrypt(encryptedData, invalidKey)).toThrow('Invalid key length');
+      expect(() => encryption.decrypt(encryptedData, invalidKey)).toThrow(
+        'Invalid key length'
+      );
     });
 
     test('It should throw error for invalid IV length in decrypt', () => {
@@ -188,7 +203,9 @@ describe('Encryption', () => {
         iv: Buffer.from('invalid-iv-too-long-or-short')
       };
 
-      expect(() => encryption.decrypt(invalidEncryptedData, key)).toThrow('Invalid IV length');
+      expect(() => encryption.decrypt(invalidEncryptedData, key)).toThrow(
+        'Invalid IV length'
+      );
     });
 
     test('It should fail to decrypt with incorrect key', () => {
@@ -215,7 +232,9 @@ describe('Encryption', () => {
         ...encryptedData,
         encrypted: Buffer.concat([
           encryptedData.encrypted.slice(0, -1),
-          Buffer.from([encryptedData.encrypted[encryptedData.encrypted.length - 1] ^ 1]) // Flip last bit
+          Buffer.from([
+            encryptedData.encrypted[encryptedData.encrypted.length - 1] ^ 1
+          ]) // Flip last bit
         ])
       };
 
@@ -277,7 +296,8 @@ describe('Encryption', () => {
       const storedEncryptedData = Buffer.from(serialized);
 
       // 6. Later, retrieve and deserialize
-      const retrievedEncryptedData = encryption.deserialize(storedEncryptedData);
+      const retrievedEncryptedData =
+        encryption.deserialize(storedEncryptedData);
 
       // 7. Decrypt
       const decrypted = encryption.decrypt(retrievedEncryptedData, key);

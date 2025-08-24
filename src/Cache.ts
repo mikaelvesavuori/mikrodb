@@ -39,7 +39,8 @@ export class Cache {
       .slice(0, evictionCount)
       .map(([tableName]) => tableName);
 
-    for (const tableName of evictionCandidates) this.tableAccessTimes.delete(tableName);
+    for (const tableName of evictionCandidates)
+      this.tableAccessTimes.delete(tableName);
 
     return evictionCandidates;
   }

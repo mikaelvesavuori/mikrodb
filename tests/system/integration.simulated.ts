@@ -101,7 +101,9 @@ async function runFastifySimulation() {
     }
   }
 
-  console.log(`Data verification after restart: ${success ? 'PASSED' : 'FAILED'}`);
+  console.log(
+    `Data verification after restart: ${success ? 'PASSED' : 'FAILED'}`
+  );
 
   await reopenedDb.close();
   console.log('Test completed');
@@ -206,7 +208,9 @@ async function runWALCompactionTest() {
   // Check final WAL size (should be small after checkpoint)
   const finalWalSize = readFileSync(join(testDir, 'wal.log'), 'utf8').length;
   console.log(`Final WAL size after checkpoint: ${finalWalSize} bytes`);
-  console.log(`WAL compaction test: ${finalWalSize < 100 ? 'PASSED' : 'FAILED'}`);
+  console.log(
+    `WAL compaction test: ${finalWalSize < 100 ? 'PASSED' : 'FAILED'}`
+  );
 
   // Verify data is still accessible
   const testItem = await db.get({
@@ -228,7 +232,9 @@ async function runReliabilityTest() {
   const db = new MikroDB({ databaseDirectory: testDir });
   await db.start();
 
-  console.log('Performing mixed read/write operations with occasional checkpoints...');
+  console.log(
+    'Performing mixed read/write operations with occasional checkpoints...'
+  );
 
   // Set to track expected values
   const expectedValues = new Map();
@@ -271,7 +277,9 @@ async function runReliabilityTest() {
       if (expectedValues.has(expectedKey)) {
         const expected = expectedValues.get(expectedKey);
         if (JSON.stringify(value) !== JSON.stringify(expected)) {
-          console.error(`Consistency error: key ${expectedKey} has unexpected value`);
+          console.error(
+            `Consistency error: key ${expectedKey} has unexpected value`
+          );
           console.error(`Expected: ${JSON.stringify(expected)}`);
           console.error(`Got: ${JSON.stringify(value)}`);
         }
@@ -292,7 +300,9 @@ async function runReliabilityTest() {
     }
   }
 
-  console.log(`Completed ${operationCount} operations in ${Date.now() - startTime}ms`);
+  console.log(
+    `Completed ${operationCount} operations in ${Date.now() - startTime}ms`
+  );
 
   // Final verification after restarting DB
   await db.close();

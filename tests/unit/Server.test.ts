@@ -1,7 +1,15 @@
 import { existsSync, mkdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { afterAll, afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  expect,
+  test,
+  vi
+} from 'vitest';
 
 import { startServer } from '../../src/Server.js';
 import { configDefaults } from '../../src/utils/configDefaults.js';
@@ -22,7 +30,9 @@ vi.mock('mikroserve', () => ({
   MikroServe: vi.fn().mockImplementation(() => ({
     get: vi.fn((path, handler) => mockEndpoints.set(`GET ${path}`, handler)),
     post: vi.fn((path, handler) => mockEndpoints.set(`POST ${path}`, handler)),
-    delete: vi.fn((path, handler) => mockEndpoints.set(`DELETE ${path}`, handler)),
+    delete: vi.fn((path, handler) =>
+      mockEndpoints.set(`DELETE ${path}`, handler)
+    ),
     start: vi.fn(),
     stop: vi.fn()
   }))

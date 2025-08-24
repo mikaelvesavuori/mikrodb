@@ -41,7 +41,8 @@ interface TestResult {
 
 // Simple function to generate a random ID
 function generateRandomId(length = 10) {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const chars =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
   for (let i = 0; i < length; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -102,9 +103,12 @@ async function makeWriteRequest(req: WriteRequest): Promise<any> {
 // Utility function to make a DELETE request
 async function makeDeleteRequest(tableName: string, key: string): Promise<any> {
   try {
-    const response = await fetch(`${BASE_URL}/delete?tableName=${tableName}&key=${key}`, {
-      method: 'DELETE'
-    });
+    const response = await fetch(
+      `${BASE_URL}/delete?tableName=${tableName}&key=${key}`,
+      {
+        method: 'DELETE'
+      }
+    );
 
     if (!response.ok) {
       return {
@@ -127,8 +131,12 @@ function generateRandomUser(valid = true): any {
     return Math.random() > 0.5 ? 'invalid-data' : null;
   }
 
-  const firstName = ['John', 'Jane', 'Bob', 'Alice', 'Charlie'][Math.floor(Math.random() * 5)];
-  const lastName = ['Smith', 'Doe', 'Johnson', 'Brown', 'Lee'][Math.floor(Math.random() * 5)];
+  const firstName = ['John', 'Jane', 'Bob', 'Alice', 'Charlie'][
+    Math.floor(Math.random() * 5)
+  ];
+  const lastName = ['Smith', 'Doe', 'Johnson', 'Brown', 'Lee'][
+    Math.floor(Math.random() * 5)
+  ];
 
   return {
     firstName,
@@ -211,7 +219,10 @@ async function runSmokeTests(): Promise<TestResult> {
     } else {
       console.error('Verification failed - User still exists');
       result.failure++;
-      result.errors?.push({ operation: 'VERIFY_DELETE', details: verifyResult });
+      result.errors?.push({
+        operation: 'VERIFY_DELETE',
+        details: verifyResult
+      });
     }
   } catch (error) {
     console.error('Unexpected error in smoke tests:', error);
@@ -219,7 +230,9 @@ async function runSmokeTests(): Promise<TestResult> {
     result.errors?.push({ operation: 'SMOKE_TEST', details: String(error) });
   }
 
-  console.log(`Smoke tests completed. Success: ${result.success}, Failure: ${result.failure}`);
+  console.log(
+    `Smoke tests completed. Success: ${result.success}, Failure: ${result.failure}`
+  );
   return result;
 }
 
@@ -235,7 +248,11 @@ async function runMildLoadTest(iterations = 20): Promise<TestResult> {
     // Create multiple users with varying data
     for (let i = 0; i < iterations; i++) {
       const isValid = Math.random() > 0.2; // 80% valid requests
-      const userId = isValid ? `load-user-${generateRandomId(6)}` : Math.random() > 0.5 ? '' : null;
+      const userId = isValid
+        ? `load-user-${generateRandomId(6)}`
+        : Math.random() > 0.5
+          ? ''
+          : null;
       const userData = generateRandomUser(isValid);
 
       if (isValid && typeof userId === 'string') {
@@ -250,7 +267,8 @@ async function runMildLoadTest(iterations = 20): Promise<TestResult> {
         tableName,
         key: userId as string,
         value: userData,
-        expectedVersion: Math.random() > 0.8 ? Math.floor(Math.random() * 5) : undefined, // Sometimes add version
+        expectedVersion:
+          Math.random() > 0.8 ? Math.floor(Math.random() * 5) : undefined, // Sometimes add version
         flushImmediately: Math.random() > 0.5 // Randomly choose to flush
       });
 
@@ -264,7 +282,11 @@ async function runMildLoadTest(iterations = 20): Promise<TestResult> {
         } else {
           console.error('Unexpected error:', writeResult);
           result.failure++;
-          result.errors?.push({ operation: 'WRITE_LOAD', iteration: i, details: writeResult });
+          result.errors?.push({
+            operation: 'WRITE_LOAD',
+            iteration: i,
+            details: writeResult
+          });
         }
       }
     }
@@ -293,7 +315,11 @@ async function runMildLoadTest(iterations = 20): Promise<TestResult> {
       } else {
         console.error('GET error:', getResult);
         result.failure++;
-        result.errors?.push({ operation: 'GET_LOAD', userId, details: getResult });
+        result.errors?.push({
+          operation: 'GET_LOAD',
+          userId,
+          details: getResult
+        });
       }
     }
 
@@ -308,13 +334,20 @@ async function runMildLoadTest(iterations = 20): Promise<TestResult> {
       } else {
         console.error('DELETE error:', deleteResult);
         result.failure++;
-        result.errors?.push({ operation: 'DELETE_LOAD', userId, details: deleteResult });
+        result.errors?.push({
+          operation: 'DELETE_LOAD',
+          userId,
+          details: deleteResult
+        });
       }
     }
   } catch (error) {
     console.error('Unexpected error in mild load tests:', error);
     result.failure++;
-    result.errors?.push({ operation: 'MILD_LOAD_TEST', details: String(error) });
+    result.errors?.push({
+      operation: 'MILD_LOAD_TEST',
+      details: String(error)
+    });
   }
 
   const totalTime = Date.now() - startTime;
@@ -368,7 +401,9 @@ async function runHighLoadTest(burstSize = 50): Promise<TestResult> {
       }
     }
 
-    console.log(`Write burst completed. Success: ${result.success}, Failure: ${result.failure}`);
+    console.log(
+      `Write burst completed. Success: ${result.success}, Failure: ${result.failure}`
+    );
 
     // Create a burst of get requests
     console.log('Sending burst of GET requests...');
@@ -398,18 +433,22 @@ async function runHighLoadTest(burstSize = 50): Promise<TestResult> {
       }
     }
 
-    console.log(`Get burst completed. Success: ${result.success}, Failure: ${result.failure}`);
+    console.log(
+      `Get burst completed. Success: ${result.success}, Failure: ${result.failure}`
+    );
 
     // Clean up with a burst of delete requests
     console.log('Sending burst of DELETE requests...');
     const deletePromises = [];
 
     for (const userId of testUsers) {
-      const deletePromise = makeDeleteRequest(tableName, userId).then((result) => {
-        if (!result.error) return { success: true, id: userId };
-        console.error(`Error deleting user ${userId}:`, result);
-        return { success: false, error: result, id: userId };
-      });
+      const deletePromise = makeDeleteRequest(tableName, userId).then(
+        (result) => {
+          if (!result.error) return { success: true, id: userId };
+          console.error(`Error deleting user ${userId}:`, result);
+          return { success: false, error: result, id: userId };
+        }
+      );
 
       deletePromises.push(deletePromise);
     }
@@ -425,11 +464,16 @@ async function runHighLoadTest(burstSize = 50): Promise<TestResult> {
       }
     }
 
-    console.log(`Delete burst completed. Success: ${result.success}, Failure: ${result.failure}`);
+    console.log(
+      `Delete burst completed. Success: ${result.success}, Failure: ${result.failure}`
+    );
   } catch (error) {
     console.error('Unexpected error in high load tests:', error);
     result.failure++;
-    result.errors?.push({ operation: 'HIGH_LOAD_TEST', details: String(error) });
+    result.errors?.push({
+      operation: 'HIGH_LOAD_TEST',
+      details: String(error)
+    });
   }
 
   const totalTime = Date.now() - startTime;
@@ -453,12 +497,16 @@ async function runAllTests() {
     console.log('\nSmoke tests passed! Proceeding to mild load test...\n');
     const mildLoadResult = await runMildLoadTest(20);
 
-    console.log('\nMild load test completed. Proceeding to high load test...\n');
+    console.log(
+      '\nMild load test completed. Proceeding to high load test...\n'
+    );
     const highLoadResult = await runHighLoadTest(50);
 
     // Print summary
     console.log('\n====== TEST SUMMARY ======');
-    console.log(`Smoke Tests: ${smokeResult.success} successes, ${smokeResult.failure} failures`);
+    console.log(
+      `Smoke Tests: ${smokeResult.success} successes, ${smokeResult.failure} failures`
+    );
     console.log(
       `Mild Load Tests: ${mildLoadResult.success} successes, ${mildLoadResult.failure} failures, ${mildLoadResult.totalTime}ms total time`
     );

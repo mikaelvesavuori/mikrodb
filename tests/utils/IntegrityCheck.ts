@@ -20,10 +20,12 @@ export class IntegrityCheck {
     let errorCount = 0;
     const logs: string[] = [];
 
-    if (!Array.isArray(data)) throw new Error('File does not contain an array.');
+    if (!Array.isArray(data))
+      throw new Error('File does not contain an array.');
 
     for (const item of data) {
-      if (!Array.isArray(item)) throw new Error('File contains an element that is not an array.');
+      if (!Array.isArray(item))
+        throw new Error('File contains an element that is not an array.');
     }
 
     if (data.length !== expectedLength) {
@@ -34,7 +36,8 @@ export class IntegrityCheck {
       );
     }
 
-    if (logs.length > 0) console.error('ERRORS:', this.testItemsLengthName, logs);
+    if (logs.length > 0)
+      console.error('ERRORS:', this.testItemsLengthName, logs);
 
     return {
       success,
@@ -62,11 +65,14 @@ export class IntegrityCheck {
       } else if (!firstItem?.startsWith(startValue)) {
         success = false;
         errorCount++;
-        logs.push(`First item does not start with the given value: ${startValue}.`);
+        logs.push(
+          `First item does not start with the given value: ${startValue}.`
+        );
       }
     });
 
-    if (logs.length > 0) console.error('ERRORS:', this.testStartsWithName, logs);
+    if (logs.length > 0)
+      console.error('ERRORS:', this.testStartsWithName, logs);
 
     return {
       success,
@@ -157,8 +163,14 @@ export class IntegrityCheck {
     } = options;
 
     try {
-      const itemsLengthResult = this.checkArrayOfArraysLength(filePath, expectedItemCount);
-      const startsWithResult = this.checkFirstItemStartsWith(filePath, startValue);
+      const itemsLengthResult = this.checkArrayOfArraysLength(
+        filePath,
+        expectedItemCount
+      );
+      const startsWithResult = this.checkFirstItemStartsWith(
+        filePath,
+        startValue
+      );
       const unicityResult = this.checkUniqueFirstItems(filePath);
       //const logLengthResult = this.checkLogFileLineCount(
       //  logFilePath,
@@ -166,7 +178,9 @@ export class IntegrityCheck {
       //);
 
       const success =
-        itemsLengthResult.success && startsWithResult.success && unicityResult.success;
+        itemsLengthResult.success &&
+        startsWithResult.success &&
+        unicityResult.success;
       //logLengthResult.success;
 
       if (success) console.log('✅ All integrity checks passed!');

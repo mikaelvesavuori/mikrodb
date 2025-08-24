@@ -26,7 +26,8 @@ const stats = {
 async function runStressTest() {
   console.log('Starting MikroDB stress test...');
 
-  if (existsSync(TEST_DB_DIR)) rmSync(TEST_DB_DIR, { recursive: true, force: true });
+  if (existsSync(TEST_DB_DIR))
+    rmSync(TEST_DB_DIR, { recursive: true, force: true });
 
   mkdirSync(TEST_DB_DIR, { recursive: true });
 
@@ -103,7 +104,9 @@ async function runStressTest() {
 
       if ((i / BATCH_SIZE) % 10 === 0) {
         const progress = Math.round((i / OPERATIONS_PER_TABLE) * 100);
-        console.log(`Progress: ${progress}% - Operations: ${stats.totalOperations}`);
+        console.log(
+          `Progress: ${progress}% - Operations: ${stats.totalOperations}`
+        );
       }
     }
 
@@ -134,7 +137,9 @@ function printStats() {
   console.log(`  - Writes: ${stats.writes}`);
   console.log(`  - Deletes: ${stats.deletes}`);
   console.log(`Errors: ${stats.errors}`);
-  console.log(`Operations per second: ${(stats.totalOperations / duration).toFixed(2)}`);
+  console.log(
+    `Operations per second: ${(stats.totalOperations / duration).toFixed(2)}`
+  );
 
   try {
     const walSize = statSync(join(TEST_DB_DIR, 'wal.log')).size;
@@ -151,7 +156,9 @@ function printStats() {
     }
 
     console.log(`Table files size: ${(totalTableSize / 1024).toFixed(2)} KB`);
-    console.log(`Total database size: ${((walSize + totalTableSize) / 1024).toFixed(2)} KB`);
+    console.log(
+      `Total database size: ${((walSize + totalTableSize) / 1024).toFixed(2)} KB`
+    );
   } catch (error: any) {
     console.error('Could not calculate database size:', error.message);
   }

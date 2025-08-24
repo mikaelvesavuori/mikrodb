@@ -55,8 +55,9 @@ export class Table {
   /**
    * The maximum number of writes that happen before flushing data to disk.
    */
-  private readonly maxWriteOpsBeforeFlush = process.env.MAX_WRITE_OPS_BEFORE_FLUSH
-    ? Number.parseInt(process.env.MAX_WRITE_OPS_BEFORE_FLUSH)
+  private readonly maxWriteOpsBeforeFlush = process.env
+    .MAX_WRITE_OPS_BEFORE_FLUSH
+    ? Number.parseInt(process.env.MAX_WRITE_OPS_BEFORE_FLUSH, 10)
     : configDefaults().db.maxWriteOpsBeforeFlush;
 
   /**
@@ -112,7 +113,9 @@ export class Table {
       });
     });
 
-    config?.listeners?.forEach((listener) => this.mikroEvent.on(listener.event, listener.handler));
+    config?.listeners?.map((listener) =>
+      this.mikroEvent.on(listener.event, listener.handler)
+    );
   }
 
   /**
@@ -138,7 +141,9 @@ export class Table {
     const operations = await this.wal.loadWAL(tableName);
     if (operations.length === 0) return;
 
-    const tables = tableName ? [tableName] : [...new Set(operations.map((op) => op.tableName))];
+    const tables = tableName
+      ? [tableName]
+      : [...new Set(operations.map((op) => op.tableName))];
 
     for (const table of tables) {
       const tableOps = operations.filter((op) => op.tableName === table);
@@ -147,7 +152,8 @@ export class Table {
       else this.createTable(table);
 
       for (const op of tableOps) {
-        if (op.operation === 'W' && op.data) this.setItem(table, op.key, op.data);
+        if (op.operation === 'W' && op.data)
+          this.setItem(table, op.key, op.data);
         else if (op.operation === 'D') await this.deleteItem(table, op.key);
       }
     }
@@ -169,7 +175,11 @@ export class Table {
     const encryptedBuffer = await readFile(filePath);
     let fileBuffer = encryptedBuffer;
 
-    if (this.encryptionKey && encryptedBuffer.length > 0 && encryptedBuffer[0] === 1) {
+    if (
+      this.encryptionKey &&
+      encryptedBuffer.length > 0 &&
+      encryptedBuffer[0] === 1
+    ) {
       try {
         const encryptedData = this.encryption.deserialize(encryptedBuffer);
         const key = this.encryption.generateKey(this.encryptionKey, 'salt');
@@ -183,7 +193,8 @@ export class Table {
     const tableData = this.persistence.readTableFromBinaryBuffer(fileBuffer);
     this.data.set(tableName, tableData);
 
-    if (this.data.size > this.cache.cacheLimit) setImmediate(() => this.evictTablesIfNeeded());
+    if (this.data.size > this.cache.cacheLimit)
+      setImmediate(() => this.evictTablesIfNeeded());
   }
 
   /**
@@ -233,9 +244,14 @@ export class Table {
 
     while (processedOperations < totalOperations) {
       // Process in batches of concurrencyLimit
-      const batch = operations.slice(processedOperations, processedOperations + concurrencyLimit);
+      const batch = operations.slice(
+        processedOperations,
+        processedOperations + concurrencyLimit
+      );
 
-      const promises = batch.map((operation) => this.writeItem(operation, false));
+      const promises = batch.map((operation) =>
+        this.writeItem(operation, false)
+      );
       const results = await Promise.all(promises);
 
       if (results.includes(false)) return false;
@@ -243,7 +259,8 @@ export class Table {
       processedOperations += batch.length;
 
       // Flush writes when we've processed maxWriteOpsBeforeFlush items
-      if (this.writeBuffer.length >= this.maxWriteOpsBeforeFlush) await this.flushWrites();
+      if (this.writeBuffer.length >= this.maxWriteOpsBeforeFlush)
+        await this.flushWrites();
     }
 
     // If requested or batch is complete, ensure everything is flushed
@@ -255,15 +272,35 @@ export class Table {
   /**
    * @description Write data to the active table with version control and expiration.
    */
-  private async writeItem(operation: WriteOperation, flushImmediately = false): Promise<boolean> {
-    const { tableName, key, value, expectedVersion = null, expiration = 0 } = operation;
+  private async writeItem(
+    operation: WriteOperation,
+    flushImmediately = false
+  ): Promise<boolean> {
+    const {
+      tableName,
+      key,
+      value,
+      expectedVersion = null,
+      expiration = 0
+    } = operation;
 
     await this.setActiveTable(tableName);
 
-    const { success, newVersion } = this.getItemVersion(tableName, key, expectedVersion);
+    const { success, newVersion } = this.getItemVersion(
+      tableName,
+      key,
+      expectedVersion
+    );
     if (!success) return false;
 
-    await this.wal.appendToWAL(tableName, 'W', key, value, newVersion, expiration);
+    await this.wal.appendToWAL(
+      tableName,
+      'W',
+      key,
+      value,
+      newVersion,
+      expiration
+    );
 
     this.setItem(tableName, key, {
       value,
@@ -302,7 +339,14 @@ export class Table {
     );
     if (!success) return false;
 
-    await this.wal.appendToWAL(tableName, 'D', key, null, currentVersion, expiration);
+    await this.wal.appendToWAL(
+      tableName,
+      'D',
+      key,
+      null,
+      currentVersion,
+      expiration
+    );
 
     await this.deleteItem(tableName, key);
 
@@ -490,7 +534,7 @@ export class Table {
   }
 
   /**
-   * @description Flush buffered writes to their respective table files using a binary format
+   * @description Flush buffered writes to their respective table files using a binary format.
    */
   public async flushWrites() {
     if (this.writeBuffer.length === 0) return;
@@ -519,11 +563,13 @@ export class Table {
         if (!success) console.error('Error when emitting events:', errors);
       }
 
-      const writePromises = Array.from(tableOperations.entries()).map(async ([tableName]) => {
-        const fullTableData = this.getTable(tableName);
-        const tablePath = join(this.databaseDirectory, tableName);
-        await writeToDisk(tablePath, fullTableData, this.encryptionKey);
-      });
+      const writePromises = Array.from(tableOperations.entries()).map(
+        async ([tableName]) => {
+          const fullTableData = this.getTable(tableName);
+          const tablePath = join(this.databaseDirectory, tableName);
+          await writeToDisk(tablePath, fullTableData, this.encryptionKey);
+        }
+      );
 
       await Promise.all(writePromises);
 
@@ -543,7 +589,8 @@ export class Table {
     const tableData = this.getTable(tableName);
     if (tableData.size === 0) return;
 
-    for (const [key, _] of tableData.entries()) this.addToWriteBuffer(tableName, key);
+    for (const [key, _] of tableData.entries())
+      this.addToWriteBuffer(tableName, key);
 
     await this.flushWrites();
   }
