@@ -40,14 +40,14 @@ export class WriteAheadLog {
    * The maximum size of the WAL buffer before flushing.
    */
   private readonly maxWalBufferSize = Number.parseInt(
-    process.env.MAX_WAL_BUFFER_SIZE || (1024 * 1024 * 0.01).toString() // 10 KB
+    process.env.MAX_WAL_BUFFER_SIZE || (1024 * 1024 * 0.1).toString() // 100 KB
   );
 
   /**
    * The maximum size of the WAL buffer before checkpointing.
    */
   private readonly maxWalSizeBeforeCheckpoint = Number.parseInt(
-    process.env.MAX_WAL_BUFFER_SIZE || (1024 * 1024 * 0.01).toString() // 10 KB
+    process.env.MAX_WAL_BUFFER_SIZE || (1024 * 1024 * 0.1).toString() // 100 KB
   );
 
   /**
@@ -305,26 +305,8 @@ export class WriteAheadLog {
       (size, entry) => size + entry.length,
       0
     );
+
     if (estimatedBufferSize >= this.maxWalBufferSize) await this.flushWAL();
-
-    const stats = statSync(this.walFile);
-    if (stats.size > this.maxWalSizeBeforeCheckpoint) {
-      if (process.env.DEBUG === 'true')
-        console.log(
-          `WAL size (${stats.size}) exceeds limit (${this.maxWalSizeBeforeCheckpoint}), triggering checkpoint`
-        );
-
-      if (this.checkpointCallback) {
-        setImmediate(async () => {
-          try {
-            // @ts-expect-error
-            await this.checkpointCallback();
-          } catch (error) {
-            console.error('Error during automatic checkpoint:', error);
-          }
-        });
-      }
-    }
   }
 
   /**

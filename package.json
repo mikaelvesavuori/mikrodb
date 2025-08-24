@@ -1,7 +1,7 @@
 {
   "name": "mikrodb",
   "description": "A lightweight KV database inspired by Cloudflare KV, DynamoDB, and sqlite.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "Mikael Vesavuori",
   "license": "MIT",
   "keywords": [],
