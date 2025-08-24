@@ -765,7 +765,6 @@ describe('WAL handling', () => {
     test('It should flush WAL when buffer entries exceed limit', async () => {
       // @ts-expect-error - accessing private property
       db.checkpoint.wal.maxWalBufferEntries = 5;
-      console.log('DB', db);
 
       const flushSpy = vi.spyOn((db as any).table.wal, 'flushWAL');
 

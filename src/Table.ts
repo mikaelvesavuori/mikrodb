@@ -190,6 +190,12 @@ export class Table {
       }
     }
 
+    if (encryptedBuffer.length < 8) {
+      console.warn(`Table file ${tableName} is too small, recreating...`);
+      this.createTable(tableName);
+      return;
+    }
+
     const tableData = this.persistence.readTableFromBinaryBuffer(fileBuffer);
     this.data.set(tableName, tableData);
 

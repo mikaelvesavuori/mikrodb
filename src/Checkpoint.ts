@@ -201,12 +201,14 @@ export class Checkpoint {
         await this.table.flushTableToDisk(tableName);
         console.log(`Checkpointed table "${tableName}"`);
       } catch (error: any) {
-        throw new CheckpointError(
+        console.error(
           `Failed to checkpoint table "${tableName}": ${error.message}`
         );
+        console.error('Skipping corrupted table and continuing checkpoint...');
+        //throw new CheckpointError(`Failed to checkpoint table "${tableName}": ${error.message}`);
       }
     });
 
-    await Promise.all(persistPromises);
+    await Promise.allSettled(persistPromises);
   }
 }
