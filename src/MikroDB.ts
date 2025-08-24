@@ -83,12 +83,6 @@ export class MikroDB {
       walFile: join(databaseDirectory, walFileName),
       checkpointIntervalMs: walInterval
     });
-
-    this.checkpoint
-      .start()
-      .catch((error) =>
-        console.error('Failed to start checkpoint service:', error)
-      );
   }
 
   /**
